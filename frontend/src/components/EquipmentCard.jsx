@@ -1,4 +1,3 @@
-cat > src/components/EquipmentCard.jsx << 'EOF'
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -12,15 +11,6 @@ const EquipmentCard = ({ equipment }) => {
           src={`http://localhost:8000${image}`} 
           alt={name}
           className="w-full h-48 object-cover"
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = '';
-            e.target.parentElement.innerHTML = `
-              <div class="w-full h-48 bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center">
-                <span class="text-gray-400 text-4xl">📦</span>
-              </div>
-            `;
-          }}
         />
       ) : (
         <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center">
@@ -30,11 +20,11 @@ const EquipmentCard = ({ equipment }) => {
       
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">{name}</h3>
+          <h3 className="text-lg font-semibold text-gray-800">{name}</h3>
           <span className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600">{category}</span>
         </div>
         
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">{description || 'No description available'}</p>
+        <p className="text-gray-600 text-sm mb-3">{description || 'No description available'}</p>
         
         <div className="flex justify-between items-center">
           <div>
@@ -62,4 +52,3 @@ const EquipmentCard = ({ equipment }) => {
 };
 
 export default EquipmentCard;
-EOF

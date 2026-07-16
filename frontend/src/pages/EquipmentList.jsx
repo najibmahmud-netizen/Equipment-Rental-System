@@ -1,4 +1,3 @@
-cat > src/pages/EquipmentList.jsx << 'EOF'
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import EquipmentCard from '../components/EquipmentCard';
@@ -53,7 +52,6 @@ const EquipmentList = () => {
     setSelectedCategory('');
   };
 
-  // Filter equipment based on search term and category
   const filteredEquipment = equipment.filter(item => {
     const matchesSearch = searchTerm === '' || 
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -85,7 +83,6 @@ const EquipmentList = () => {
         <p className="text-gray-600">Find the perfect equipment for your needs</p>
       </div>
 
-      {/* Search and Filter */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
@@ -123,7 +120,6 @@ const EquipmentList = () => {
         )}
       </div>
 
-      {/* Equipment Grid */}
       {filteredEquipment.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow-md">
           <p className="text-gray-500 text-lg">No equipment found matching your criteria.</p>
@@ -143,4 +139,3 @@ const EquipmentList = () => {
 };
 
 export default EquipmentList;
-EOF

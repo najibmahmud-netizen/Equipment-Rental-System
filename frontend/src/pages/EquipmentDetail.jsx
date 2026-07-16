@@ -1,4 +1,3 @@
-cat > src/pages/EquipmentDetail.jsx << 'EOF'
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -26,17 +25,16 @@ const EquipmentDetail = () => {
   }, [id]);
 
   const fetchEquipment = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await api.get(`/equipment/${id}/`);
       setEquipment(response.data);
       setError(null);
     } catch (err) {
       console.error('Error fetching equipment:', err);
       setError('Failed to load equipment details.');
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   const handleRentalChange = (e) => {
@@ -52,21 +50,19 @@ const EquipmentDetail = () => {
     setRentalSuccess('');
     setSubmitting(true);
 
-    try {
-      // Check if user is logged in
-      if (!user) {
-        setRentalError('Please login to submit a rental request.');
-        setSubmitting(false);
-        return;
-      }
+    if (!user) {
+      setRentalError('Please login to submit a rental request.');
+      setSubmitting(false);
+      return;
+    }
 
-      const response = await api.post('/rentals/create/', {
+    try {
+      await api.post('/rentals/create/', {
         equipment_id: parseInt(id),
         start_date: rentalForm.start_date,
         end_date: rentalForm.end_date,
         notes: rentalForm.notes,
       });
-      
       setRentalSuccess('Rental request submitted successfully!');
       setRentalForm({
         start_date: '',
@@ -76,9 +72,8 @@ const EquipmentDetail = () => {
     } catch (err) {
       console.error('Error submitting rental:', err);
       setRentalError(err.response?.data?.error || 'Failed to submit rental request. Please try again.');
-    } finally {
-      setSubmitting(false);
     }
+    setSubmitting(false);
   };
 
   if (loading) return <LoadingSpinner />;
@@ -105,7 +100,6 @@ const EquipmentDetail = () => {
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="md:flex">
-          {/* Image */}
           <div className="md:w-1/2">
             {equipment.image ? (
               <img 
@@ -113,15 +107,6 @@ const EquipmentDetail = () => {
                 alt={equipment.name}
                 className="w-full h-full object-cover"
                 style={{ minHeight: '300px' }}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.style.display = 'none';
-                  e.target.parentElement.innerHTML = `
-                    <div class="w-full h-64 md:h-full bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center" style="min-height: 300px">
-                      <span class="text-gray-400 text-6xl">📦</span>
-                    </div>
-                  `;
-                }}
               />
             ) : (
               <div className="w-full h-64 md:h-full bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center" style={{ minHeight: '300px' }}>
@@ -130,7 +115,6 @@ const EquipmentDetail = () => {
             )}
           </div>
 
-          {/* Details */}
           <div className="md:w-1/2 p-6">
             <div className="flex justify-between items-start mb-4">
               <h1 className="text-2xl font-bold text-gray-800">{equipment.name}</h1>
@@ -158,7 +142,6 @@ const EquipmentDetail = () => {
               </div>
             </div>
 
-            {/* Rental Form */}
             {user ? (
               equipment.available && equipment.quantity > 0 ? (
                 <form onSubmit={handleRentalSubmit} className="border-t pt-4">
@@ -255,4 +238,3 @@ const EquipmentDetail = () => {
 };
 
 export default EquipmentDetail;
-EOF
