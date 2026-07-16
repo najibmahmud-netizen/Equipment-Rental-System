@@ -1,9 +1,9 @@
+cat > src/pages/EquipmentDetail.jsx << 'EOF'
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import LoadingSpinner from '../components/LoadingSpinner';
-import StatusBadge from '../components/StatusBadge';
 
 const EquipmentDetail = () => {
   const { id } = useParams();
@@ -27,12 +27,13 @@ const EquipmentDetail = () => {
 
   const fetchEquipment = async () => {
     try {
+      setLoading(true);
       const response = await api.get(`/equipment/${id}/`);
       setEquipment(response.data);
       setError(null);
     } catch (err) {
+      console.error('Error fetching equipment:', err);
       setError('Failed to load equipment details.');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -52,6 +53,13 @@ const EquipmentDetail = () => {
     setSubmitting(true);
 
     try {
+      // Check if user is logged in
+      if (!user) {
+        setRentalError('Please login to submit a rental request.');
+        setSubmitting(false);
+        return;
+      }
+
       const response = await api.post('/rentals/create/', {
         equipment_id: parseInt(id),
         start_date: rentalForm.start_date,
@@ -66,8 +74,8 @@ const EquipmentDetail = () => {
         notes: '',
       });
     } catch (err) {
+      console.error('Error submitting rental:', err);
       setRentalError(err.response?.data?.error || 'Failed to submit rental request. Please try again.');
-      console.error(err);
     } finally {
       setSubmitting(false);
     }
@@ -105,10 +113,19 @@ const EquipmentDetail = () => {
                 alt={equipment.name}
                 className="w-full h-full object-cover"
                 style={{ minHeight: '300px' }}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.style.display = 'none';
+                  e.target.parentElement.innerHTML = `
+                    <div class="w-full h-64 md:h-full bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center" style="min-height: 300px">
+                      <span class="text-gray-400 text-6xl">📦</span>
+                    </div>
+                  `;
+                }}
               />
             ) : (
               <div className="w-full h-64 md:h-full bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center" style={{ minHeight: '300px' }}>
-                <span className="text-gray-400 text-6xl"></span>
+                <span className="text-gray-400 text-6xl">📦</span>
               </div>
             )}
           </div>
@@ -135,7 +152,9 @@ const EquipmentDetail = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Status:</span>
-                <StatusBadge status={equipment.availability_status} />
+                <span className={equipment.availability_status === 'Available' ? 'badge-available' : 'badge-unavailable'}>
+                  {equipment.availability_status}
+                </span>
               </div>
             </div>
 
@@ -236,3 +255,4 @@ const EquipmentDetail = () => {
 };
 
 export default EquipmentDetail;
+EOF
